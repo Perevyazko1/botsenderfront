@@ -7,42 +7,35 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import {Box, Button, FormControl, InputLabel, MenuItem, Modal, Select, TextField, Typography} from "@mui/material";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {DemoContainer} from "@mui/x-date-pickers/internals/demo";
 import {TimePicker} from "@mui/x-date-pickers/TimePicker";
+import useAxios from "./axios";
 
 
 interface Data {
-    date: string;
+    id: number;
+    day_of_week: string;
     time: string;
-    nameTask: string;
+    task_name: string;
     task: string;
 }
 
-function createData(
-    date: string,
-    time: string,
-    nameTask: string,
-    task: string,
-): Data {
-    return {date, time, nameTask, task};
-}
-
-const rows = [
-    createData('Понедельник', '15 00', "Отчет", "Отправить отчет по продажам"),
-    createData('Вторник', '15 00', "Отчет", "Отправить отчет по продажам"),
-    createData('Среда', '15 00', "Отчет", "Отправить отчет по продажам"),
-    createData('Четверг', '15 00', "Отчет", "Отправить отчет по продажам"),
-    createData('Пятница', '15 00', "Отчет", "Отправить отчет по продажам"),
-    createData('Ежедневно', '15 00', "Отчет", "Отправить отчет по продажам"),
-];
 
 
 export default function BasicTable() {
     const [selectRow, setSelectRow] = useState<Data>()
     const [openModal, setOpenModal] = useState(false)
+    const { data, error, loading, executeRequest } = useAxios<any>();
+
+    useEffect(() => {
+        executeRequest("GET",'http://127.0.0.1:8000/app/get_task/')
+    }, []);
+    useEffect(() => {
+        console.log(data)
+    }, [data]);
     const handleRowClick = (row: any) => {
         setSelectRow(row)
         console.log(row)
@@ -50,6 +43,9 @@ export default function BasicTable() {
     }
     const handleClose = () => {
         setOpenModal(false)
+    }
+    const handleDeleteTask = (id:number) =>{
+        executeRequest("POST",`http://127.0.0.1:8000/app/delete_task/${id}/`)
     }
 
 
@@ -66,15 +62,15 @@ export default function BasicTable() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {rows.map((row) => (
+                        {data && data.map((row:Data) => (
                             <TableRow
-                                key={row.task}
+                                key={row.id}
                                 sx={{'&:last-child td, &:last-child th': {border: 0}}}
                                 onClick={() => handleRowClick(row)}
                             >
-                                <TableCell align="left">{row.date}</TableCell>
+                                <TableCell align="left">{row.day_of_week}</TableCell>
                                 <TableCell align="left">{row.time}</TableCell>
-                                <TableCell align="left">{row.nameTask}</TableCell>
+                                <TableCell align="left">{row.task_name}</TableCell>
                                 <TableCell align="right">
                                 </TableCell>
                             </TableRow>
@@ -103,13 +99,13 @@ export default function BasicTable() {
                     }}
                 >
                     <Typography id="modal-modal-title" variant="h6" component="h2">
-                        {selectRow && selectRow?.date}
+                        {selectRow && selectRow?.day_of_week}
                     </Typography>
                     <Typography id="modal-modal-title" variant="h6" component="h2">
                         {selectRow && selectRow?.time}
                     </Typography>
                     <Typography id="modal-modal-title" variant="h6" component="h2">
-                        {selectRow && selectRow?.nameTask}
+                        {selectRow && selectRow?.task_name}
                     </Typography>
                     <Typography
                         id="modal-modal-title"
@@ -120,8 +116,12 @@ export default function BasicTable() {
                         {selectRow && selectRow?.task}
                     </Typography>
                     <div style={{display: 'flex', marginTop: '20px'}}>
-                        <Button sx={{margin: "5px"}} variant="contained">Удалить</Button>
-                        <Button sx={{margin: "5px"}} variant="contained">Изменить</Button>
+                        <Button
+                            onClick={()=>{selectRow && handleDeleteTask(selectRow?.id)}}
+                            sx={{margin: "5px"}}
+                            variant="contained"
+                        >Удалить</Button>
+                        {/*<Button sx={{margin: "5px"}} variant="contained">Изменить</Button>*/}
                     </div>
 
 

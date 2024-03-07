@@ -15,23 +15,65 @@ import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
 import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
 import {DateTimePicker} from '@mui/x-date-pickers/DateTimePicker';
 import {TimePicker} from '@mui/x-date-pickers/TimePicker';
+import dayjs from "dayjs";
+import useAxios from "./axios";
 
 
 const CreateTask = () => {
 
+    type TaskData = {
+        day_of_week: string;
+        time: string;
+        task: string;
+        task_name: string;
+    };
+    const [taskData, setTaskData] = useState<TaskData>({
+        day_of_week: '',
+        time: '',
+        task: '',
+        task_name: '',
+    });
+
+
     const [isOpenModal, setIsOpenModal] = useState(false)
     const [age, setAge] = useState("")
+    const { data, error, loading, executeRequest } = useAxios<any>();
     const handleOpen = () => {
         setIsOpenModal(true)
     }
+
     const handleClose = () => {
         setIsOpenModal(false)
+        console.log(taskData)
+        executeRequest('post', 'http://127.0.0.1:8000/app/create_task/', taskData)
+
     }
 
 
-    const handleChange = (e: SelectChangeEvent) => {
-        setAge(e.target.value as string)
+    const handleDayOfWeekChange = (e: SelectChangeEvent) => {
+        setTaskData({ ...taskData, day_of_week: e.target.value as string });
+    };
+
+const handleTimeChange = (newTime: Date | null) => {
+    console.log(newTime)
+    if(newTime){
+        const formattedTime: string = dayjs(newTime).format('HH:mm'); // Преобразование времени в формат "часы:минуты"
+        setTaskData({ ...taskData, time: formattedTime });
     }
+
+};
+    const handleTaskChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTaskData({ ...taskData, task: e.target.value as string });
+    };
+
+    const handleTaskNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTaskData({ ...taskData, task_name: e.target.value as string });
+    };
+
+    const handleCreateTask = () => {
+        // Вы можете использовать taskData для создания новой задачи или проведения другой логики
+        console.log(taskData);
+    };
 
 
     return (
@@ -69,9 +111,11 @@ const CreateTask = () => {
                             <TimePicker
                                 ampm={false} // Выставляем 24-часовой формат времени
                                 label="Basic time picker"
+                                onChange={handleTimeChange}
                             />
                         </DemoContainer>
-                    </LocalizationProvider> <FormControl
+                    </LocalizationProvider>
+                    <FormControl
                     fullWidth
                     sx={{marginTop: '10px'}}
                 >
@@ -81,7 +125,8 @@ const CreateTask = () => {
                         id="demo-simple-select"
                         value={age}
                         label="Age"
-                        onChange={handleChange}
+                        onChange={handleDayOfWeekChange}
+
                     >
                         <MenuItem value={"Понедельник"}>Понедельник</MenuItem>
                         <MenuItem value={"Вторник"}>Вторник</MenuItem>
@@ -93,10 +138,18 @@ const CreateTask = () => {
                         <MenuItem value={"Ежедневно"}>Ежедневно</MenuItem>
                     </Select>
                 </FormControl>
-                    <TextField sx={{marginTop: '10px'}} fullWidth id="standard-basic" label="Введите имя задачи"
-                               variant="outlined"/>
-                    <TextField sx={{marginTop: '10px'}} fullWidth id="standard-basic" label="Введите задачу"
-                               variant="outlined"/>
+                    <TextField sx={{marginTop: '10px'}}
+                               fullWidth id="standard-basic"
+                               label="Введите имя задачи"
+                               variant="outlined"
+                               onChange={handleTaskNameChange}
+                    />
+                    <TextField sx={{marginTop: '10px'}}
+                               fullWidth id="standard-basic"
+                               label="Введите задачу"
+                               variant="outlined"
+                               onChange={handleTaskChange}
+                    />
                     <Button sx={{marginTop: "10px"}} onClick={handleClose} variant="contained">Отправить</Button>
 
 
