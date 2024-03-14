@@ -24,29 +24,32 @@ interface Data {
 }
 
 
-
 export default function BasicTable() {
     const [selectRow, setSelectRow] = useState<Data>()
     const [openModal, setOpenModal] = useState(false)
-    const { data, error, loading, executeRequest } = useAxios<any>();
+    const {data, error, loading, executeRequest} = useAxios<any>();
+    const [telegramData, setTelegramData] = useState<any>()
+
 
     useEffect(() => {
-        executeRequest("GET",'http://127.0.0.1:8000/app/get_task/')
+        executeRequest("GET", 'http://88.225.47.208:8000/app/get_task/')
     }, []);
-    useEffect(() => {
-        console.log(data)
-    }, [data]);
     const handleRowClick = (row: any) => {
         setSelectRow(row)
-        console.log(row)
         setOpenModal(true)
     }
     const handleClose = () => {
         setOpenModal(false)
     }
-    const handleDeleteTask = (id:number) =>{
-        executeRequest("POST",`http://127.0.0.1:8000/app/delete_task/${id}/`)
+    const handleDeleteTask = (id: number) => {
+        executeRequest("POST", `http://88.225.47.208:8000/app/delete_task/${id}/`)
     }
+    const app = (window as any).Telegram?.WebApp;
+
+    useEffect(() => {
+        setTelegramData(app.initDataUnsafe)
+
+    }, [app]);
 
 
     return (
@@ -62,7 +65,7 @@ export default function BasicTable() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {data && data.map((row:Data) => (
+                        {data && data.map((row: Data) => (
                             <TableRow
                                 key={row.id}
                                 sx={{'&:last-child td, &:last-child th': {border: 0}}}
@@ -111,13 +114,15 @@ export default function BasicTable() {
                         id="modal-modal-title"
                         variant="h6"
                         component="h2"
-                        sx={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}
+                        sx={{wordWrap: 'break-word', overflowWrap: 'break-word'}}
                     >
                         {selectRow && selectRow?.task}
                     </Typography>
                     <div style={{display: 'flex', marginTop: '20px'}}>
                         <Button
-                            onClick={()=>{selectRow && handleDeleteTask(selectRow?.id)}}
+                            onClick={() => {
+                                selectRow && handleDeleteTask(selectRow?.id)
+                            }}
                             sx={{margin: "5px"}}
                             variant="contained"
                         >Удалить</Button>
@@ -127,7 +132,6 @@ export default function BasicTable() {
 
                 </Box>
             </Modal>
-
 
         </div>
     );

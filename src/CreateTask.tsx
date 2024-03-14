@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Box,
     Button,
@@ -26,53 +26,56 @@ const CreateTask = () => {
         time: string;
         task: string;
         task_name: string;
+        chat_id: number
     };
     const [taskData, setTaskData] = useState<TaskData>({
         day_of_week: '',
         time: '',
         task: '',
         task_name: '',
+        chat_id: 0
     });
 
 
     const [isOpenModal, setIsOpenModal] = useState(false)
     const [age, setAge] = useState("")
-    const { data, error, loading, executeRequest } = useAxios<any>();
+    const {data, error, loading, executeRequest} = useAxios<any>();
     const handleOpen = () => {
         setIsOpenModal(true)
     }
 
     const handleClose = () => {
         setIsOpenModal(false)
-        console.log(taskData)
         executeRequest('post', 'http://127.0.0.1:8000/app/create_task/', taskData)
 
     }
 
 
     const handleDayOfWeekChange = (e: SelectChangeEvent) => {
-        setTaskData({ ...taskData, day_of_week: e.target.value as string });
+        setTaskData({...taskData, day_of_week: e.target.value as string});
     };
 
-const handleTimeChange = (newTime: Date | null) => {
-    console.log(newTime)
-    if(newTime){
-        const formattedTime: string = dayjs(newTime).format('HH:mm'); // Преобразование времени в формат "часы:минуты"
-        setTaskData({ ...taskData, time: formattedTime });
-    }
+    const handleTimeChange = (newTime: Date | null) => {
+        if (newTime) {
+            const formattedTime: string = dayjs(newTime).format('HH:mm'); // Преобразование времени в формат "часы:минуты"
+            setTaskData({...taskData, time: formattedTime});
+        }
 
-};
+    };
     const handleTaskChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setTaskData({ ...taskData, task: e.target.value as string });
+        setTaskData({...taskData, task: e.target.value as string});
+    };
+    const handlePasteId = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const parsedChatId = parseInt(e.target.value, 10);
+        setTaskData({...taskData, chat_id: parsedChatId });
     };
 
     const handleTaskNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setTaskData({ ...taskData, task_name: e.target.value as string });
+        setTaskData({...taskData, task_name: e.target.value as string});
     };
 
     const handleCreateTask = () => {
         // Вы можете использовать taskData для создания новой задачи или проведения другой логики
-        console.log(taskData);
     };
 
 
@@ -116,28 +119,28 @@ const handleTimeChange = (newTime: Date | null) => {
                         </DemoContainer>
                     </LocalizationProvider>
                     <FormControl
-                    fullWidth
-                    sx={{marginTop: '10px'}}
-                >
-                    <InputLabel id="demo-simple-select-label">Выберите день недели</InputLabel>
-                    <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={age}
-                        label="Age"
-                        onChange={handleDayOfWeekChange}
-
+                        fullWidth
+                        sx={{marginTop: '10px'}}
                     >
-                        <MenuItem value={"Понедельник"}>Понедельник</MenuItem>
-                        <MenuItem value={"Вторник"}>Вторник</MenuItem>
-                        <MenuItem value={"Среда"}>Среда</MenuItem>
-                        <MenuItem value={"Четверг"}>Четверг</MenuItem>
-                        <MenuItem value={"Пятница"}>Пятница</MenuItem>
-                        <MenuItem value={"Суббота"}>Суббота</MenuItem>
-                        <MenuItem value={"Воскресенье"}>Воскресенье</MenuItem>
-                        <MenuItem value={"Ежедневно"}>Ежедневно</MenuItem>
-                    </Select>
-                </FormControl>
+                        <InputLabel  id="demo-simple-select-label">Выберите день недели</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={age}
+                            label="Age"
+                            onChange={handleDayOfWeekChange}
+
+                        >
+                            <MenuItem value={"Понедельник"}>Понедельник</MenuItem>
+                            <MenuItem value={"Вторник"}>Вторник</MenuItem>
+                            <MenuItem value={"Среда"}>Среда</MenuItem>
+                            <MenuItem value={"Четверг"}>Четверг</MenuItem>
+                            <MenuItem value={"Пятница"}>Пятница</MenuItem>
+                            <MenuItem value={"Суббота"}>Суббота</MenuItem>
+                            <MenuItem value={"Воскресенье"}>Воскресенье</MenuItem>
+                            <MenuItem value={"Ежедневно"}>Ежедневно</MenuItem>
+                        </Select>
+                    </FormControl>
                     <TextField sx={{marginTop: '10px'}}
                                fullWidth id="standard-basic"
                                label="Введите имя задачи"
@@ -150,6 +153,13 @@ const handleTimeChange = (newTime: Date | null) => {
                                variant="outlined"
                                onChange={handleTaskChange}
                     />
+                    <TextField sx={{marginTop: '10px'}}
+                               fullWidth id="standard-basic"
+                               label="Вставьтье скопированный чат ID"
+                               variant="outlined"
+                               onChange={handlePasteId}
+                    />
+
                     <Button sx={{marginTop: "10px"}} onClick={handleClose} variant="contained">Отправить</Button>
 
 

@@ -19,6 +19,7 @@ function App() {
             <main>
                 <ColumnGroupingTable/>
                 <CreateTask/>
+
             </main>
         </ThemeProvider>
 
