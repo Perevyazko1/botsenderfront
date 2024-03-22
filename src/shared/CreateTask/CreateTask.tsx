@@ -16,7 +16,7 @@ import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
 import {DateTimePicker} from '@mui/x-date-pickers/DateTimePicker';
 import {TimePicker} from '@mui/x-date-pickers/TimePicker';
 import dayjs from "dayjs";
-import useAxios from "./axios";
+import useAxios from "../hooks/axios";
 
 
 const CreateTask = () => {
@@ -46,7 +46,7 @@ const CreateTask = () => {
 
     const handleClose = () => {
         setIsOpenModal(false)
-        executeRequest('post', 'http://127.0.0.1:8000/app/create_task/', taskData)
+        executeRequest('post', 'http://88.225.47.208:8000/app/create_task/', taskData)
 
     }
 

@@ -12,8 +12,8 @@ import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {DemoContainer} from "@mui/x-date-pickers/internals/demo";
 import {TimePicker} from "@mui/x-date-pickers/TimePicker";
-import useAxios from "./axios";
-
+import useAxios from "../hooks/axios";
+import {useParams} from "react-router-dom";
 
 interface Data {
     id: number;
@@ -29,10 +29,17 @@ export default function BasicTable() {
     const [openModal, setOpenModal] = useState(false)
     const {data, error, loading, executeRequest} = useAxios<any>();
     const [telegramData, setTelegramData] = useState<any>()
-
+    const [one, setOne] = useState()
+    const [two, setTwo] = useState()
+    const [three, setThree] = useState()
+    const [four, setFour] = useState()
+    const navigate = useParams()
+    const {chat_id} = useParams()
 
     useEffect(() => {
-        executeRequest("GET", 'http://88.225.47.208:8000/app/get_task/')
+        if(chat_id){
+          executeRequest("GET", `http://88.225.47.208:8000/app/get_task/${chat_id}`)
+        }
     }, []);
     const handleRowClick = (row: any) => {
         setSelectRow(row)
@@ -45,11 +52,25 @@ export default function BasicTable() {
         executeRequest("POST", `http://88.225.47.208:8000/app/delete_task/${id}/`)
     }
     const app = (window as any).Telegram?.WebApp;
+    const app3 = (window as any).Telegram?.WebApp?.initDataUnsafe?.chat
+    const app4 = (window as any).Telegram?.WebAppChat;
+    const app5 = (window as any).WebAppChat;
+    const app6 = (window as any).Telegram?.WebApp?.WebAppChat;
+    useEffect(() => {
+
+    }, []);
 
     useEffect(() => {
         setTelegramData(app.initDataUnsafe)
+        if (app3) {
+            setOne(app3)
+        }
 
-    }, [app]);
+        setTwo(app4)
+        setThree(app5)
+        setFour(app6)
+
+    }, [app, app3, app4, app5, app6]);
 
 
     return (
@@ -81,6 +102,11 @@ export default function BasicTable() {
                     </TableBody>
                 </Table>
             </TableContainer>
+            <div>{JSON.stringify(telegramData)}</div>
+            <div>{JSON.stringify(one)}</div>
+            <div>{JSON.stringify(two)}</div>
+            <div>{JSON.stringify(three)}</div>
+            <div>{JSON.stringify(four)}</div>
             <Modal
                 open={openModal}
                 onClose={handleClose}
