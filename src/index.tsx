@@ -1,10 +1,11 @@
-import React from 'react';
+import React, {useState} from 'react';
 import ReactDOM from 'react-dom/client';
 import './app/style/index.css';
 import App from './app/App';
 import reportWebVitals from './reportWebVitals';
 import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
-import {BrowserRouter} from "react-router-dom";
+import {BrowserRouter, HashRouter} from "react-router-dom";
+
 
 
 const root = ReactDOM.createRoot(
@@ -17,12 +18,12 @@ const darkTheme = createTheme({
 });
 
 root.render(
-    <BrowserRouter>
-        <ThemeProvider theme={darkTheme}>
-            <CssBaseline/>
-            <App/>
-        </ThemeProvider>
-    </BrowserRouter>
+    <HashRouter>
+            <ThemeProvider theme={darkTheme}>
+                <CssBaseline/>
+                <App/>
+            </ThemeProvider>
+    </HashRouter>
 );
 
 // If you want to start measuring performance in your app, pass a function

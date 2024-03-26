@@ -35,7 +35,6 @@ const useAxios = <T>(): AxiosHookResponse<T> => {
                 default:
                     throw new Error('Unsupported method');
             }
-            // console.log(response.data)
             setData(response.data);
             setLoading(false);
         } catch (error) {

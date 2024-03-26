@@ -4,22 +4,26 @@ import {
     Button,
     FormControl,
     InputLabel,
+    MenuItem,
     Modal,
-    Typography,
     Select,
     SelectChangeEvent,
-    MenuItem, Input, TextField
+    TextField,
+    Typography
 } from "@mui/material";
 import {DemoContainer} from '@mui/x-date-pickers/internals/demo';
 import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
 import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
-import {DateTimePicker} from '@mui/x-date-pickers/DateTimePicker';
 import {TimePicker} from '@mui/x-date-pickers/TimePicker';
 import dayjs from "dayjs";
 import useAxios from "../hooks/axios";
+import {useParams} from "react-router-dom";
+import {useDataContext} from "../../app/providers/ContextProvider/DataContext";
 
 
 const CreateTask = () => {
+    const {id_chat} = useParams()
+
 
     type TaskData = {
         day_of_week: string;
@@ -29,24 +33,34 @@ const CreateTask = () => {
         chat_id: number
     };
     const [taskData, setTaskData] = useState<TaskData>({
-        day_of_week: '',
-        time: '',
-        task: '',
-        task_name: '',
+        day_of_week: 'Ежедневно',
+        time: '00:00',
+        task: 'Задача',
+        task_name: 'Название задачи',
         chat_id: 0
     });
 
 
     const [isOpenModal, setIsOpenModal] = useState(false)
-    const [age, setAge] = useState("")
     const {data, error, loading, executeRequest} = useAxios<any>();
+    const {dataSort, setDataSort} = useDataContext()
+
+    useEffect(() => {
+        if (data && data.length > 0) {
+            setDataSort(data);
+        }
+
+
+    }, [data]);
+
     const handleOpen = () => {
         setIsOpenModal(true)
     }
 
     const handleClose = () => {
         setIsOpenModal(false)
-        executeRequest('post', 'http://88.225.47.208:8000/app/create_task/', taskData)
+        executeRequest('post', `https://senderbot.tw1.ru/app/create_task/`, taskData)
+
 
     }
 
@@ -65,17 +79,16 @@ const CreateTask = () => {
     const handleTaskChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTaskData({...taskData, task: e.target.value as string});
     };
-    const handlePasteId = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const parsedChatId = parseInt(e.target.value, 10);
-        setTaskData({...taskData, chat_id: parsedChatId });
-    };
+
+    useEffect(() => {
+        if (id_chat) {
+            setTaskData({...taskData, chat_id: parseInt(id_chat, 10)});
+        }
+
+    }, [id_chat]);
 
     const handleTaskNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTaskData({...taskData, task_name: e.target.value as string});
-    };
-
-    const handleCreateTask = () => {
-        // Вы можете использовать taskData для создания новой задачи или проведения другой логики
     };
 
 
@@ -94,12 +107,13 @@ const CreateTask = () => {
                         top: '50%',
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
-                        // width: 400,
+                        width: "90%",
                         bgcolor: 'background.paper',
                         border: '2px solid #ffffff',
                         borderRadius: '5px',
                         boxShadow: 24,
                         p: 4,
+
                     }}
                 >
                     <Typography id="modal-modal-title" variant="h6" component="h2">
@@ -113,7 +127,7 @@ const CreateTask = () => {
                             components={['TimePicker']}>
                             <TimePicker
                                 ampm={false} // Выставляем 24-часовой формат времени
-                                label="Basic time picker"
+                                label="Время по Мск"
                                 onChange={handleTimeChange}
                             />
                         </DemoContainer>
@@ -122,13 +136,13 @@ const CreateTask = () => {
                         fullWidth
                         sx={{marginTop: '10px'}}
                     >
-                        <InputLabel  id="demo-simple-select-label">Выберите день недели</InputLabel>
+                        <InputLabel id="demo-simple-select-label">Выберите день недели</InputLabel>
                         <Select
                             labelId="demo-simple-select-label"
                             id="demo-simple-select"
-                            value={age}
                             label="Age"
                             onChange={handleDayOfWeekChange}
+                            defaultValue={"Ежедневно"}
 
                         >
                             <MenuItem value={"Понедельник"}>Понедельник</MenuItem>
@@ -153,16 +167,7 @@ const CreateTask = () => {
                                variant="outlined"
                                onChange={handleTaskChange}
                     />
-                    <TextField sx={{marginTop: '10px'}}
-                               fullWidth id="standard-basic"
-                               label="Вставьтье скопированный чат ID"
-                               variant="outlined"
-                               onChange={handlePasteId}
-                    />
-
                     <Button sx={{marginTop: "10px"}} onClick={handleClose} variant="contained">Отправить</Button>
-
-
                 </Box>
             </Modal>
 

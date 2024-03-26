@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {useEffect, useState} from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -6,14 +7,10 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import {Box, Button, FormControl, InputLabel, MenuItem, Modal, Select, TextField, Typography} from "@mui/material";
-import {useEffect, useState} from "react";
-import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
-import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
-import {DemoContainer} from "@mui/x-date-pickers/internals/demo";
-import {TimePicker} from "@mui/x-date-pickers/TimePicker";
+import {Box, Button, Modal, Typography} from "@mui/material";
 import useAxios from "../hooks/axios";
 import {useParams} from "react-router-dom";
+import {useDataContext} from "../../app/providers/ContextProvider/DataContext";
 
 interface Data {
     id: number;
@@ -28,19 +25,19 @@ export default function BasicTable() {
     const [selectRow, setSelectRow] = useState<Data>()
     const [openModal, setOpenModal] = useState(false)
     const {data, error, loading, executeRequest} = useAxios<any>();
-    const [telegramData, setTelegramData] = useState<any>()
-    const [one, setOne] = useState()
-    const [two, setTwo] = useState()
-    const [three, setThree] = useState()
-    const [four, setFour] = useState()
-    const navigate = useParams()
-    const {chat_id} = useParams()
-
+    const {id_chat} = useParams()
+    const {dataSort, setDataSort} = useDataContext()
     useEffect(() => {
-        if(chat_id){
-          executeRequest("GET", `http://88.225.47.208:8000/app/get_task/${chat_id}`)
+        if (data && data.length > 0) {
+            setDataSort(data);
         }
-    }, []);
+    }, [data]);
+    useEffect(() => {
+
+        if (id_chat) {
+            executeRequest("GET", `https://senderbot.tw1.ru/app/get_task/${id_chat}/`)
+        }
+    }, [id_chat]);
     const handleRowClick = (row: any) => {
         setSelectRow(row)
         setOpenModal(true)
@@ -49,28 +46,13 @@ export default function BasicTable() {
         setOpenModal(false)
     }
     const handleDeleteTask = (id: number) => {
-        executeRequest("POST", `http://88.225.47.208:8000/app/delete_task/${id}/`)
-    }
-    const app = (window as any).Telegram?.WebApp;
-    const app3 = (window as any).Telegram?.WebApp?.initDataUnsafe?.chat
-    const app4 = (window as any).Telegram?.WebAppChat;
-    const app5 = (window as any).WebAppChat;
-    const app6 = (window as any).Telegram?.WebApp?.WebAppChat;
-    useEffect(() => {
-
-    }, []);
-
-    useEffect(() => {
-        setTelegramData(app.initDataUnsafe)
-        if (app3) {
-            setOne(app3)
+        executeRequest("POST", `https://senderbot.tw1.ru/app/delete_task/${id}/`)
+        if (id_chat) {
+            executeRequest("GET", `https://senderbot.tw1.ru/app/get_task/${id_chat}/`)
         }
 
-        setTwo(app4)
-        setThree(app5)
-        setFour(app6)
-
-    }, [app, app3, app4, app5, app6]);
+        setOpenModal(false)
+    }
 
 
     return (
@@ -82,11 +64,10 @@ export default function BasicTable() {
                             <TableCell>День</TableCell>
                             <TableCell align="left">Время</TableCell>
                             <TableCell align="left">Имя задачи</TableCell>
-                            {/*<TableCell align="right">Действие</TableCell>*/}
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {data && data.map((row: Data) => (
+                        {dataSort?.length > 0 && dataSort.map((row: Data) => (
                             <TableRow
                                 key={row.id}
                                 sx={{'&:last-child td, &:last-child th': {border: 0}}}
@@ -95,18 +76,11 @@ export default function BasicTable() {
                                 <TableCell align="left">{row.day_of_week}</TableCell>
                                 <TableCell align="left">{row.time}</TableCell>
                                 <TableCell align="left">{row.task_name}</TableCell>
-                                <TableCell align="right">
-                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
             </TableContainer>
-            <div>{JSON.stringify(telegramData)}</div>
-            <div>{JSON.stringify(one)}</div>
-            <div>{JSON.stringify(two)}</div>
-            <div>{JSON.stringify(three)}</div>
-            <div>{JSON.stringify(four)}</div>
             <Modal
                 open={openModal}
                 onClose={handleClose}
